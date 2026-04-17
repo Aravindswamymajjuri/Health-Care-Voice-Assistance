@@ -1,0 +1,651 @@
+/* =====================================================================
+   HealthcareAppShowcase.css - Modern Healthcare Web App Dashboard
+   
+   Premium SaaS-style healthcare interface with:
+   - Glassmorphism effects
+   - Soft green/white theme
+   - Smooth animations
+   - Professional micro-interactions
+   ===================================================================== */
+
+/* =====================================================================
+   CSS Variables & Theme
+   ===================================================================== */
+
+:root {
+  /* Primary Colors */
+  --color-primary: #10b981;
+  --color-primary-light: #d1fae5;
+  --color-primary-dark: #059669;
+  
+  /* Neutrals */
+  --color-white: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-900: #111827;
+  
+  /* Accents */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-soft: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 48px;
+  
+  /* Borders */
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 24px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 300ms ease-in-out;
+  --transition-slow: 500ms ease-in-out;
+}
+
+/* =====================================================================
+   Base & Reset
+   ===================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #f0fdf4 0%, #f9fafb 100%);
+  color: var(--color-gray-900);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* =====================================================================
+   Main Container
+   ===================================================================== */
+
+.healthcare-app-showcase {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, #f0fdf4 0%, #f9fafb 100%);
+  overflow: hidden;
+}
+
+/* =====================================================================
+   Header
+   ===================================================================== */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-gray-100);
+  box-shadow: var(--shadow-sm);
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+}
+
+.logo-icon {
+  font-size: 32px;
+  animation: softBounce 2s ease-in-out infinite;
+}
+
+@keyframes softBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.app-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+/* =====================================================================
+   Main Content Area
+   ===================================================================== */
+
+.app-main {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  flex: 1;
+  overflow: hidden;
+}
+
+/* =====================================================================
+   Sidebars
+   ===================================================================== */
+
+.info-sidebar,
+.features-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+}
+
+.sidebar-card {
+  background: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-gray-100);
+  transition: all var(--transition-base);
+}
+
+.sidebar-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
+}
+
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.status-item,
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.status-item:last-child,
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.status-label,
+.stat-name {
+  font-size: 12px;
+  color: var(--color-gray-600);
+  font-weight: 500;
+}
+
+.status-value,
+.stat-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.status-value.healthy {
+  color: var(--color-success);
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.sidebar-text {
+  font-size: 12px;
+  color: var(--color-gray-600);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-md);
+}
+
+.contact-button,
+.feature-item {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: var(--spacing-sm);
+  transition: all var(--transition-base);
+}
+
+.contact-button:hover,
+.feature-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.feature-item {
+  background: var(--color-gray-100);
+  color: var(--color-gray-900);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+}
+
+.feature-icon {
+  font-size: 16px;
+}
+
+.feature-name {
+  flex: 1;
+  text-align: left;
+}
+
+.feature-item:hover {
+  background: var(--color-gray-200);
+}
+
+/* =====================================================================
+   Chat Section
+   ===================================================================== */
+
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-white);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-gray-100);
+  overflow: hidden;
+}
+
+.carousel-container-wrapper {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-gray-100);
+  background: var(--gradient-soft);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =====================================================================
+   Chat Messages
+   ===================================================================== */
+
+.chat-messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background: var(--color-white);
+}
+
+.message-bubble {
+  display: flex;
+  flex-direction: column;
+  animation: messageSlideIn 300ms ease-out;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-user {
+  align-items: flex-end;
+}
+
+.message-bot {
+  align-items: flex-start;
+}
+
+.message-content {
+  max-width: 70%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.message-user .message-content {
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: var(--border-radius-lg) var(--spacing-xs) var(--border-radius-lg) var(--border-radius-lg);
+}
+
+.message-bot .message-content {
+  background: var(--color-gray-100);
+  color: var(--color-gray-900);
+  border-radius: var(--spacing-xs) var(--border-radius-lg) var(--border-radius-lg) var(--border-radius-lg);
+}
+
+.message-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+}
+
+.message-timestamp {
+  font-size: 11px;
+  color: var(--color-gray-500);
+  margin-top: var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
+}
+
+/* =====================================================================
+   Chat Input
+   ===================================================================== */
+
+.chat-input-area {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--color-gray-100);
+  background: var(--color-gray-50);
+}
+
+.input-wrapper {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.chat-input {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1.5px solid var(--color-gray-200);
+  border-radius: var(--border-radius-lg);
+  font-size: 14px;
+  color: var(--color-gray-900);
+  background: var(--color-white);
+  transition: all var(--transition-base);
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.chat-input::placeholder {
+  color: var(--color-gray-500);
+}
+
+.send-button {
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-md);
+}
+
+.send-button:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.send-button:active {
+  transform: scale(0.95);
+}
+
+.input-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.action-button {
+  width: 36px;
+  height: 36px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-gray-200);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all var(--transition-base);
+}
+
+.action-button:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =====================================================================
+   Floating Action Button (FAB)
+   ===================================================================== */
+
+.fab-button {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 64px;
+  height: 64px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  transition: all var(--transition-fast);
+  z-index: 50;
+}
+
+.fab-button:hover {
+  transform: scale(1.1) translateY(-4px);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.5);
+}
+
+.fab-button:active {
+  transform: scale(0.95);
+}
+
+/* =====================================================================
+   Footer
+   ===================================================================== */
+
+.app-footer {
+  padding: var(--spacing-lg);
+  text-align: center;
+  background: var(--color-white);
+  border-top: 1px solid var(--color-gray-100);
+  font-size: 12px;
+  color: var(--color-gray-600);
+}
+
+/* =====================================================================
+   Scrollbar Styling
+   ===================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-400);
+}
+
+/* =====================================================================
+   Responsive Design
+   ===================================================================== */
+
+@media (max-width: 1440px) {
+  .app-main {
+    grid-template-columns: 240px 1fr 260px;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 1024px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+
+  .info-sidebar,
+  .features-sidebar {
+    display: none;
+  }
+
+  .message-content {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    flex-wrap: wrap;
+  }
+
+  .app-title {
+    font-size: 20px;
+  }
+
+  .user-profile {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: var(--spacing-sm);
+  }
+
+  .chat-input-area {
+    padding: var(--spacing-md);
+  }
+
+  .fab-button {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+    bottom: 24px;
+    right: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-messages-area {
+    padding: var(--spacing-md);
+  }
+
+  .message-content {
+    max-width: 95%;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .app-footer {
+    font-size: 11px;
+  }
+}

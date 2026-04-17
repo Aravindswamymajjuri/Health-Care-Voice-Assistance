@@ -1,0 +1,402 @@
+/* ===================== HOME PAGE - RESPONSIVE (Mobile-First) ===================== */
+
+/* BASE STYLES - Mobile First (320px+) */
+.home-container {
+  /* reduced as requested */
+  min-height: 15vh !important;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(249,250,251,1));
+  padding: 1rem;
+}
+
+.home-hero {
+  /* reduced vertical padding for a more compact hero */
+  padding: 1.25rem 1rem;
+  background: #14b8a6;
+  border-bottom: none;
+  margin: -1rem -1rem 0 -1rem;
+  color: #fff;
+}
+
+.hero-inner {
+  /* narrower hero content for improved focus */
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.home-title {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0; /* reduced bottom spacing */
+  line-height: 1.2;
+  font-weight: 700;
+  color: #fff;
+}
+
+.lead {
+  color: #e0f2f1;
+  margin-bottom: 0.75rem; /* tighter spacing under subtitle */
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem; /* slightly reduced gap between action buttons */
+  justify-content: center;
+  margin-top: 1rem; /* bring actions closer to subtitle */
+}
+
+.btn.primary {
+  background: #14b8a6;
+  color: white;
+  border: 2px solid #14b8a6;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(20,184,166,0.2);
+}
+
+.home-hero .btn.primary {
+  border-color: #ffffff;
+}
+
+.btn.outline {
+  background: transparent;
+  border: 2px solid #14b8a6;
+  color: #14b8a6;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Ensure hero buttons stay visible on teal background */
+.home-hero .btn.outline {
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+}
+
+.home-hero .btn.outline:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: #ffffff;
+}
+
+.btn.primary:hover {
+  background: #0d9488;
+}
+
+.btn.outline:hover {
+  background: #e0f2f1;
+  border-color: #06b6d4;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(20,184,166,0.08);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.features-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.feature-icon {
+  color: #14b8a6;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  vertical-align: middle;
+}
+
+.home-main {
+  max-width: var(--site-max-width);
+  margin: 2rem auto 0;
+  padding: 0 0 3rem; /* slightly smaller bottom spacing */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* tightened carousel/card gap */
+  width: 100%;
+}
+
+.home-slider-main {
+  display: block;
+}
+
+.home-slider {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.home-slider-track {
+  display: flex;
+  transition: transform 0.6s ease;
+  will-change: transform;
+}
+
+.home-slider-track.no-transition {
+  transition: none;
+}
+
+.home-slide {
+  flex: 0 0 100%;
+  padding: 0 0 0.75rem; /* reduce vertical padding between slides */
+}
+
+.home-slide .card {
+  margin-bottom: 0;
+}
+
+.home-slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem; /* bring dots closer to carousel */
+}
+
+.home-slider-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 2px solid #14b8a6;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.home-slider-dot.active {
+  background: #14b8a6;
+}
+
+.home-main section {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.04);
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.home-main h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #0f172a;
+}
+
+.home-main ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.home-main li {
+  margin-bottom: 0.5rem;
+  color: rgba(31,41,55,0.85);
+  line-height: 1.5;
+}
+
+.contact a {
+  color: #0ea5a4;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.contact a:hover {
+  color: #0d9488;
+  text-decoration: underline;
+}
+
+/* ===================== RESPONSIVE BREAKPOINTS ===================== */
+
+/* Small devices (480px and up) */
+@media (min-width: 480px) {
+  .home-hero {
+    padding: 1.25rem 1rem; /* compact on small screens */
+  }
+
+  .hero-inner h1 {
+    font-size: 2rem;
+  }
+
+  .hero-actions {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  .btn {
+    flex: 1;
+  }
+
+  .home-main {
+    gap: 1.5rem;
+  }
+}
+
+/* Medium devices - Tablets (640px and up) */
+@media (min-width: 640px) {
+  .home-container {
+    padding: 1.5rem;
+  }
+
+  .home-hero {
+    padding: 1.5rem 1.25rem; /* reduced at tablet size */
+    margin: -1.5rem -1.5rem 0 -1.5rem;
+  }
+
+  .hero-inner {
+    padding: 0 2rem;
+  }
+
+  .hero-inner h1 {
+    font-size: 2.25rem;
+  }
+
+  .lead {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .home-main {
+    margin: 2rem auto 0;
+    gap: 1.75rem;
+    padding: 0 0 3rem;
+  }
+
+  .home-main section {
+    padding: 2rem;
+    border-radius: 12px;
+  }
+
+  .home-main h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* Large devices - Desktops (768px and up) */
+@media (min-width: 768px) {
+  .home-container {
+    padding: 2rem;
+  }
+
+  .home-hero {
+    padding: 2rem 1.5rem; /* compact but proportionally larger at desktop */
+  }
+
+  .hero-inner h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .lead {
+    font-size: 1.1rem;
+  }
+
+  .btn {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .home-main {
+    margin: 2.5rem auto 0;
+  }
+
+  .home-slider-main {
+    display: block;
+  }
+}
+
+/* Extra large devices (900px and up) */
+@media (min-width: 900px) {
+  .home-hero {
+    padding: 2.5rem 2rem;
+  }
+
+  .hero-inner h1 {
+    font-size: 2.75rem;
+  }
+
+  .home-main {
+    gap: 2.5rem;
+    padding: 0 0 4rem;
+  }
+
+  .home-main section {
+    padding: 2.25rem;
+  }
+}
+
+/* Ultra-wide screens (1024px and up) */
+@media (min-width: 1024px) {
+  .home-hero {
+    padding: 3rem 2.5rem;
+  }
+
+  .hero-inner h1 {
+    font-size: 3rem;
+  }
+
+  .home-main section {
+    padding: 2.5rem;
+    border-radius: 14px;
+  }
+}
+
+/* Extra ultra-wide (1280px and up) */
+@media (min-width: 1280px) {
+  .home-hero {
+    padding: 3rem 3rem;
+  }
+
+  .home-main {
+    gap: 3rem;
+  }
+}
+
+/* Touch device adjustments */
+@media (hover: none) and (pointer: coarse) {
+  .btn {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .contact a {
+    padding: 0.5rem;
+    display: inline-block;
+  }
+}
+
+/* Landscape orientation (reduce padding for better use of screen space) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .home-hero {
+    padding: 1.5rem 2rem;
+  }
+
+  .hero-inner h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .lead {
+    font-size: 0.9rem;
+  }
+
+  .home-main {
+    margin: 1rem auto 0;
+    gap: 1rem;
+  }
+}
+
+/* Reduced motion preference - disable animations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

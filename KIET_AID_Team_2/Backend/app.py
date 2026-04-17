@@ -44,6 +44,16 @@ import numpy as np
 # Import authentication module
 from auth import auth_manager, UserCreate, UserLogin, AuthResponse, UserResponse
 
+# Import response validator for fallback system
+try:
+    from response_validator import ResponseValidator, validate_and_get_response
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.info("✅ Response validator module loaded")
+except Exception as e:
+    validate_and_get_response = None
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.warning(f"⚠️ Response validator module not available: {e}")
+
 # ===================== 3. LOGGING SETUP =====================
 logging.basicConfig(
     level=logging.INFO,
@@ -105,6 +115,8 @@ class VoiceResponse(BaseModel):
     timestamp: Optional[str] = None
     processing_time: Optional[float] = None
     conversation_id: Optional[str] = None
+    source: Optional[str] = None  # "model", "gemini", "cache", "model_fallback"
+    validation_passed: Optional[bool] = None  # Whether response passed validation
 
 class ErrorResponse(BaseModel):
     """Error response model"""
@@ -1350,13 +1362,18 @@ async def me(current_user: dict = Depends(get_current_user)):
 @app.post("/api/chat/text", response_model=VoiceResponse)
 async def text_chat(request: TextInput, background_tasks: BackgroundTasks, current_user: Optional[dict] = Depends(get_current_user)):
     """
-    Process text input and return AI response
+    Process text input and return AI response with validation & Gemini fallback
     
     Request body:
     {
         "text": "What are symptoms of diabetes?",
         "user_id": "optional_user_id"
     }
+    
+    Response includes:
+    - response: Generated answer
+    - source: "model", "gemini", or "model_fallback"
+    - validation_passed: Whether model response passed validation
     """
     start_time = time.time()
     
@@ -1373,9 +1390,7 @@ async def text_chat(request: TextInput, background_tasks: BackgroundTasks, curre
             logger.info("⚡ Cache hit!")
             response_time = time.time() - start_time
             statistics.record_request("text", response_time)
-            # Determine conversation id (generate if not provided)
             conv_id = request.conversation_id if getattr(request, 'conversation_id', None) else str(uuid.uuid4())
-            # Attach user_id if authenticated
             if current_user:
                 background_tasks.add_task(chat_logger.add_log, input_text, cached_response, "text", user_id=current_user['id'], conversation_id=conv_id, cached=True)
             else:
@@ -1389,38 +1404,73 @@ async def text_chat(request: TextInput, background_tasks: BackgroundTasks, curre
                 confidence=0.95,
                 timestamp=datetime.now().isoformat(),
                 processing_time=response_time,
-                conversation_id=conv_id
+                conversation_id=conv_id,
+                source="cache",
+                validation_passed=True
             )
         
         # Generate response
         if not model_manager or not model_manager.is_loaded:
             raise HTTPException(status_code=503, detail="Model not loaded")
         
-        response, inference_time = model_manager.generate_response(input_text)
+        model_response, inference_time = model_manager.generate_response(input_text)
         
-        # Cache the response
-        cache_manager.set(input_text, response)
+        # ===================== NEW: VALIDATE & FALLBACK SYSTEM =====================
+        final_response = model_response
+        response_source = "model"
+        validation_passed = True
+        
+        if validate_and_get_response:
+            try:
+                validation_result = await validate_and_get_response(
+                    question=input_text,
+                    model_response=model_response,
+                    model_manager=model_manager,
+                    user_context={
+                        "user_id": current_user['id'] if current_user else None,
+                        "timestamp": datetime.now().isoformat()
+                    }
+                )
+                
+                final_response = validation_result["response"]
+                response_source = validation_result["source"]
+                validation_passed = validation_result["validation_passed"]
+                
+                logger.info(f"✅ Response validation complete - Source: {response_source}, Valid: {validation_passed}")
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Validation system error (using model response): {e}")
+                final_response = model_response
+                response_source = "model"
+                validation_passed = True
+        
+        # ===================== END: VALIDATE & FALLBACK SYSTEM =====================
+        
+        # Cache the final response
+        cache_manager.set(input_text, final_response)
         
         response_time = time.time() - start_time
         statistics.record_request("text", response_time)
-        # Determine conversation id: prefer client-provided, else generate one now so we can return it to the client
         conv_id = request.conversation_id if getattr(request, 'conversation_id', None) else str(uuid.uuid4())
-        if current_user:
-            background_tasks.add_task(chat_logger.add_log, input_text, response, "text", user_id=current_user['id'], conversation_id=conv_id)
-        else:
-            background_tasks.add_task(chat_logger.add_log, input_text, response, "text", conversation_id=conv_id)
         
-        logger.info(f"✅ Text response: {input_text[:50]}... → {response[:50]}...")
+        if current_user:
+            background_tasks.add_task(chat_logger.add_log, input_text, final_response, "text", user_id=current_user['id'], conversation_id=conv_id)
+        else:
+            background_tasks.add_task(chat_logger.add_log, input_text, final_response, "text", conversation_id=conv_id)
+        
+        logger.info(f"✅ Text response ({response_source}): {input_text[:50]}... → {final_response[:50]}...")
         
         return VoiceResponse(
             status="success",
             input_type="text",
             input_text=input_text,
-            response=response,
+            response=final_response,
             confidence=0.95,
             timestamp=datetime.now().isoformat(),
             processing_time=response_time,
-            conversation_id=conv_id
+            conversation_id=conv_id,
+            source=response_source,
+            validation_passed=validation_passed
         )
     
     except HTTPException:
@@ -1612,7 +1662,39 @@ async def voice_chat(file: UploadFile = File(...), conversation_id: Optional[str
         if not model_manager or not model_manager.is_loaded:
             raise HTTPException(status_code=503, detail="Model not loaded")
         
-        response, inference_time = model_manager.generate_response(transcribed_text)
+        model_response, inference_time = model_manager.generate_response(transcribed_text)
+        
+        # ===================== NEW: VALIDATE & FALLBACK SYSTEM =====================
+        final_response = model_response
+        response_source = "model"
+        validation_passed = True
+        
+        if validate_and_get_response:
+            try:
+                validation_result = await validate_and_get_response(
+                    question=transcribed_text,
+                    model_response=model_response,
+                    model_manager=model_manager,
+                    user_context={
+                        "user_id": current_user['id'] if current_user else None,
+                        "input_type": "voice",
+                        "timestamp": datetime.now().isoformat()
+                    }
+                )
+                
+                final_response = validation_result["response"]
+                response_source = validation_result["source"]
+                validation_passed = validation_result["validation_passed"]
+                
+                logger.info(f"✅ Response validation complete - Source: {response_source}, Valid: {validation_passed}")
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Validation system error (using model response): {e}")
+                final_response = model_response
+                response_source = "model"
+                validation_passed = True
+        
+        # ===================== END: VALIDATE & FALLBACK SYSTEM =====================
         
         response_time = time.time() - start_time
         statistics.record_request("voice", response_time)
@@ -1623,7 +1705,7 @@ async def voice_chat(file: UploadFile = File(...), conversation_id: Optional[str
                 background_tasks.add_task(
                     chat_logger.add_log,
                     transcribed_text,
-                    response,
+                    final_response,
                     "voice",
                     user_id=current_user['id'],
                     conversation_id=conv_id,
@@ -1633,33 +1715,25 @@ async def voice_chat(file: UploadFile = File(...), conversation_id: Optional[str
                 background_tasks.add_task(
                     chat_logger.add_log,
                     transcribed_text,
-                    response,
+                    final_response,
                     "voice",
                     conversation_id=conv_id,
                     audio_file=file.filename
                 )
         
-        logger.info(f"✅ Voice response: {transcribed_text[:50]}... → {response[:50]}... (conv={conv_id})")
+        logger.info(f"✅ Voice response ({response_source}): {transcribed_text[:50]}... → {final_response[:50]}... (conv={conv_id})")
 
         return VoiceResponse(
             status="success",
             input_type="voice",
             input_text=transcribed_text,
-            response=response,
+            response=final_response,
             confidence=float(confidence),
             timestamp=datetime.now().isoformat(),
             processing_time=response_time,
-            conversation_id=conv_id
-        )
-        
-        return VoiceResponse(
-            status="success",
-            input_type="voice",
-            input_text=transcribed_text,
-            response=response,
-            confidence=confidence,
-            timestamp=datetime.now().isoformat(),
-            processing_time=response_time
+            conversation_id=conv_id,
+            source=response_source,
+            validation_passed=validation_passed
         )
     
     except HTTPException:

@@ -3,7 +3,6 @@ import { FiLock, FiUser, FiEye, FiEyeOff, FiUserPlus } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../context/LanguageContext';
-import LanguageSelector from './LanguageSelector';
 import './Auth.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -170,9 +169,6 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
   return (
     <div className={`auth-container signup ${isAnimating ? 'active' : ''}`}>
       <button type="button" className="go-home-btn" onClick={onGoHome} aria-label="Go home">{t('home')}</button>
-      <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 100 }}>
-        <LanguageSelector />
-      </div>
       <div className="auth-card">
         <div className="auth-hero">
           <div className="hero-icon">🩺</div>
@@ -193,23 +189,23 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
           {step === 0 && (
             <>
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-username"><FiUser className="label-icon" />Username <span style={{color: 'red'}}>*</span></label>
-                <input id="signup-username" type="text" name="username" placeholder="Enter your username" value={formData.username} onChange={handleChange} className="form-input" disabled={isLoading} minLength="3" required />
+                <label className="form-label" htmlFor="signup-username"><FiUser className="label-icon" />{t('username')} <span style={{color: 'red'}}>*</span></label>
+                <input id="signup-username" type="text" name="username" placeholder={t('enterYourUsername')} value={formData.username} onChange={handleChange} className="form-input" disabled={isLoading} minLength="3" required />
                 <div className="helper-text">
-                  {usernameChecking && <small>Checking availability...</small>}
-                  {!usernameChecking && usernameAvailable === false && <small style={{color: '#ef4444'}}>Username is already taken</small>}
-                  {!usernameChecking && usernameAvailable === true && <small style={{color: '#10b981'}}>Username is available</small>}
+                  {usernameChecking && <small>{t('checkingAvailability')}</small>}
+                  {!usernameChecking && usernameAvailable === false && <small style={{color: '#ef4444'}}>{t('usernameAlreadyTaken')}</small>}
+                  {!usernameChecking && usernameAvailable === true && <small style={{color: '#10b981'}}>{t('usernameIsAvailable')}</small>}
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-password"><FiLock className="label-icon" />Password</label>
+                <label className="form-label" htmlFor="signup-password"><FiLock className="label-icon" />{t('password')}</label>
                 <div className="password-input-wrapper">
                   <input
                     id="signup-password"
                     type={showPassword ? 'text' : 'password'}
                     name="password"
-                    placeholder="Create a strong password"
+                    placeholder={t('createStrongPassword')}
                     value={formData.password}
                     onChange={handleChange}
                     className="form-input"
@@ -229,13 +225,13 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-confirm-password">Confirm Password</label>
+                <label className="form-label" htmlFor="signup-confirm-password">{t('confirmPassword')}</label>
                 <div className="password-input-wrapper">
                   <input
                     id="signup-confirm-password"
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
-                    placeholder="Confirm your password"
+                    placeholder={t('confirmYourPassword')}
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="form-input"
@@ -248,7 +244,7 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
 
               <div className="form-actions step-actions">
                 <div />
-                <button type="button" className="btn" onClick={handleNext}>Next →</button>
+                <button type="button" className="btn" onClick={handleNext}>{t('next')} →</button>
               </div>
             </>
           )}
@@ -256,28 +252,28 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
           {step === 1 && (
             <>
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-fullname"><FiUser className="label-icon" />Full Name (Optional)</label>
-                <input id="signup-fullname" type="text" name="full_name" placeholder="Your full name" value={formData.full_name} onChange={handleChange} className="form-input" disabled={isLoading} />
+                <label className="form-label" htmlFor="signup-fullname"><FiUser className="label-icon" />{t('fullNameOptional')}</label>
+                <input id="signup-fullname" type="text" name="full_name" placeholder={t('yourFullName')} value={formData.full_name} onChange={handleChange} className="form-input" disabled={isLoading} />
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-email">Email</label>
-                <input id="signup-email" type="email" name="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} className="form-input" disabled={isLoading} required />
+                <label className="form-label" htmlFor="signup-email">{t('email')}</label>
+                <input id="signup-email" type="email" name="email" placeholder={t('enterYourEmail')} value={formData.email} onChange={handleChange} className="form-input" disabled={isLoading} required />
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-phone">Phone Number</label>
-                <input id="signup-phone" type="tel" name="phone" placeholder="Enter your phone number" value={formData.phone} onChange={handleChange} className="form-input" disabled={isLoading} required pattern="\d{10,15}" />
+                <label className="form-label" htmlFor="signup-phone">{t('phoneNumber')}</label>
+                <input id="signup-phone" type="tel" name="phone" placeholder={t('enterYourPhoneNumber')} value={formData.phone} onChange={handleChange} className="form-input" disabled={isLoading} required pattern="\d{10,15}" />
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-age">Age</label>
-                <input id="signup-age" type="number" name="age" placeholder="Enter your age" value={formData.age} onChange={handleChange} className="form-input" disabled={isLoading} min="0" max="120" required />
+                <label className="form-label" htmlFor="signup-age">{t('age')}</label>
+                <input id="signup-age" type="number" name="age" placeholder={t('enterYourAge')} value={formData.age} onChange={handleChange} className="form-input" disabled={isLoading} min="0" max="120" required />
               </div>
 
               <div className="form-actions step-actions">
-                <button type="button" className="btn btn-outline" onClick={handleBack}>← Back</button>
-                <button type="button" className="btn" onClick={handleNext}>Next →</button>
+                <button type="button" className="btn btn-outline" onClick={handleBack}>← {t('back')}</button>
+                <button type="button" className="btn" onClick={handleNext}>{t('next')} →</button>
               </div>
             </>
           )}
@@ -285,34 +281,34 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
           {step === 2 && (
             <>
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-gender">Gender</label>
+                <label className="form-label" htmlFor="signup-gender">{t('gender')}</label>
                 <select id="signup-gender" name="gender" value={formData.gender} onChange={handleChange} className="form-input" disabled={isLoading} required>
-                  <option value="">Select gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                  <option value="prefer_not_to_say">Prefer not to say</option>
+                  <option value="">{t('selectGender')}</option>
+                  <option value="male">{t('male')}</option>
+                  <option value="female">{t('female')}</option>
+                  <option value="other">{t('other')}</option>
+                  <option value="prefer_not_to_say">{t('preferNotToSay')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-allergies">Allergies (Medical Conditions)</label>
-                <input id="signup-allergies" type="text" name="allergies" placeholder="List allergies or medical conditions" value={formData.allergies} onChange={handleChange} className="form-input" disabled={isLoading} />
+                <label className="form-label" htmlFor="signup-allergies">{t('medicalConditions')}</label>
+                <input id="signup-allergies" type="text" name="allergies" placeholder={t('listAllergies')} value={formData.allergies} onChange={handleChange} className="form-input" disabled={isLoading} />
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-emergency">Emergency Contact</label>
-                <input id="signup-emergency" type="text" name="emergencyContact" placeholder="Emergency contact details" value={formData.emergencyContact} onChange={handleChange} className="form-input" disabled={isLoading} required />
+                <label className="form-label" htmlFor="signup-emergency">{t('emergencyContact')}</label>
+                <input id="signup-emergency" type="text" name="emergencyContact" placeholder={t('emergencyContactDetails')} value={formData.emergencyContact} onChange={handleChange} className="form-input" disabled={isLoading} required />
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-emergency-email">Emergency Email <span style={{color: 'red'}}>*</span></label>
-                <input id="signup-emergency-email" type="email" name="emergencyEmail" placeholder="Enter emergency email" value={formData.emergencyEmail} onChange={handleChange} className="form-input" disabled={isLoading} required />
+                <label className="form-label" htmlFor="signup-emergency-email">{t('emergencyEmail')} <span style={{color: 'red'}}>*</span></label>
+                <input id="signup-emergency-email" type="email" name="emergencyEmail" placeholder={t('enterEmergencyEmail')} value={formData.emergencyEmail} onChange={handleChange} className="form-input" disabled={isLoading} required />
               </div>
 
               <div className="form-actions step-actions">
-                <button type="button" className="btn btn-outline" onClick={handleBack}>← Back</button>
-                <button type="button" className="btn" onClick={handleNext}>Next →</button>
+                <button type="button" className="btn btn-outline" onClick={handleBack}>← {t('back')}</button>
+                <button type="button" className="btn" onClick={handleNext}>{t('next')} →</button>
               </div>
             </>
           )}
@@ -320,26 +316,26 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
           {step === 3 && (
             <>
               <div className="form-group">
-                <h3>Review your details</h3>
+                <h3>{t('reviewYourDetails')}</h3>
                 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12}}>
-                  <div><strong>Username</strong><div>{formData.username}</div></div>
-                  <div><strong>Full name</strong><div>{formData.full_name || '-'}</div></div>
-                  <div><strong>Email</strong><div>{formData.email}</div></div>
-                  <div><strong>Phone</strong><div>{formData.phone}</div></div>
-                  <div><strong>Age</strong><div>{formData.age}</div></div>
-                  <div><strong>Gender</strong><div>{formData.gender}</div></div>
-                  <div style={{gridColumn: '1 / -1'}}><strong>Allergies</strong><div>{formData.allergies || '-'}</div></div>
+                  <div><strong>{t('username')}</strong><div>{formData.username}</div></div>
+                  <div><strong>{t('fullName')}</strong><div>{formData.full_name || '-'}</div></div>
+                  <div><strong>{t('email')}</strong><div>{formData.email}</div></div>
+                  <div><strong>{t('phone')}</strong><div>{formData.phone}</div></div>
+                  <div><strong>{t('age')}</strong><div>{formData.age}</div></div>
+                  <div><strong>{t('gender')}</strong><div>{formData.gender}</div></div>
+                  <div style={{gridColumn: '1 / -1'}}><strong>{t('allergies')}</strong><div>{formData.allergies || '-'}</div></div>
                 </div>
               </div>
 
               <div className="form-actions step-actions">
-                <button type="button" className="btn btn-outline" onClick={handleBack}>← Back</button>
-                <button type="submit" className={`auth-button ${isLoading ? 'loading' : ''}`} disabled={isLoading} aria-busy={isLoading}>{isLoading ? (<><div className="spinner" />Creating account...</>) : (<><FiUserPlus />Create account</>)}</button>
+                <button type="button" className="btn btn-outline" onClick={handleBack}>← {t('back')}</button>
+                <button type="submit" className={`auth-button ${isLoading ? 'loading' : ''}`} disabled={isLoading} aria-busy={isLoading}>{isLoading ? (<><div className="spinner" />{t('creatingAccount')}</>) : (<><FiUserPlus />{t('createAccount')}</>)}</button>
               </div>
             </>
           )}
           <div className="auth-footer">
-            <p className="auth-switch-text">Already have an account? <button type="button" className="auth-switch-button" onClick={onSwitchToLogin} disabled={isLoading}>Sign in</button></p>
+            <p className="auth-switch-text">{t('alreadyHaveAccount')} <button type="button" className="auth-switch-button" onClick={onSwitchToLogin} disabled={isLoading}>{t('loginButton')}</button></p>
           </div>
         </form>
       </div>

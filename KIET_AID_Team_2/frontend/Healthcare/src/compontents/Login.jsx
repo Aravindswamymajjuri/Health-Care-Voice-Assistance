@@ -3,7 +3,6 @@ import { FiLock, FiUser, FiEye, FiEyeOff, FiLogIn } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../context/LanguageContext';
-import LanguageSelector from './LanguageSelector';
 import './Auth.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -57,9 +56,6 @@ const Login = ({ onLoginSuccess, onSwitchToSignup, onGoHome }) => {
   return (
     <div className={`auth-container signin ${isAnimating ? 'active' : ''}`}>
       <button type="button" className="go-home-btn" onClick={onGoHome} aria-label="Go home">{t('home')}</button>
-      <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 100 }}>
-        <LanguageSelector />
-      </div>
       <div className="auth-card">
         <div className="auth-hero">
           <div className="hero-icon">🩺</div>

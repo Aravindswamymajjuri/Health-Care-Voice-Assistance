@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLanguage } from '../context/LanguageContext';
-import LanguageSelector from './LanguageSelector';
 import './Profile.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -165,9 +164,6 @@ const Profile = ({ onLogout }) => {
 
   return (
     <div className="profile-page">
-      <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 1000 }}>
-        <LanguageSelector />
-      </div>
       <div className="profile-header-bar">
         <button className="back-btn" onClick={handleBack}>
           <span className="back-arrow">←</span> {t('back')}

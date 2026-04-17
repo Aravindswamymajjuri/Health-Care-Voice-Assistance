@@ -892,6 +892,11 @@ body {
 .profile-menu__item:focus { background: var(--color-secondary-hover); outline: none; }
 .profile-menu__divider { height: 1px; background: var(--color-card-border-inner); margin: 6px 0; border-radius: 2px; }
 
+/* Language section in profile menu */
+.profile-menu__language-section {
+  padding: 8px 6px;
+}
+
 .menu-btn {
   background: #e0f2f1;
   color: #14b8a6;

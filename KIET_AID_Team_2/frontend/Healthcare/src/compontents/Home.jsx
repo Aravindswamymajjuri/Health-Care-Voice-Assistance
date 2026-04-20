@@ -73,10 +73,10 @@ const Home = ({ onSwitchToLogin, onSwitchToSignup }) => {
 
   return (
     <div className="home-container">
-      <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 1000 }}>
-        <LanguageSelector />
-      </div>
       <header className="home-hero">
+        <div className="hero-header-top">
+          <LanguageSelector />
+        </div>
         <div className="hero-inner">
           <h1 className="home-title">{t('welcomeTitle')}</h1>
           <p className="lead">{t('homeSubtitle')}</p>

@@ -20,14 +20,6 @@
   position: relative;
 }
 
-.hero-header-top {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  padding-right: 0.5rem;
-}
-
 .hero-inner {
   /* narrower hero content for improved focus */
   max-width: 760px;

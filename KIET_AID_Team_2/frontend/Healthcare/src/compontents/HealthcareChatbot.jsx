@@ -231,6 +231,7 @@ const HealthcareChatbot = ({ currentUser, onLogout }) => {
   // ========== REFS ==========
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const textareaRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const streamRef = useRef(null);
@@ -340,6 +341,18 @@ const HealthcareChatbot = ({ currentUser, onLogout }) => {
       if (container) container.scrollTop = container.scrollHeight;
     }
   }, [messages]);
+
+  // ========== AUTO EXPAND TEXTAREA ==========
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = 'auto';
+      // Set height to scrollHeight with max-height limit
+      const newHeight = Math.min(textarea.scrollHeight, 150);
+      textarea.style.height = `${newHeight}px`;
+    }
+  }, [inputText]);
 
   // ========== UTILITY FUNCTIONS ==========
 
@@ -1640,6 +1653,7 @@ Powered by: Healthcare AI Chatbot v2.0
         </div>
         <div className="chatbot-header-actions">
           <span className="user-badge">{currentUser?.username || 'User'}</span>
+          <LanguageSelector />
           <div className="profile-menu-wrapper" ref={profileMenuRef}>
             <button
               className="btn profile-icon"
@@ -1655,10 +1669,6 @@ Powered by: Healthcare AI Chatbot v2.0
             <div className={`profile-menu ${profileMenuOpen ? 'open' : ''}`} role="menu" aria-hidden={!profileMenuOpen}>
               <button className="profile-menu__item" role="menuitem" onClick={() => { window.dispatchEvent(new CustomEvent('openProfile')); setProfileMenuOpen(false); }}>Profile</button>
               <button className="profile-menu__item" role="menuitem" onClick={() => { setShowDashboard(true); setProfileMenuOpen(false); }}>Dashboard</button>
-              <div className="profile-menu__divider" />
-              <div className="profile-menu__language-section">
-                <LanguageSelector />
-              </div>
               <div className="profile-menu__divider" />
               <button className="profile-menu__item" role="menuitem" onClick={() => { if (typeof onLogout === 'function') onLogout(); setProfileMenuOpen(false); }}>Logout</button>
             </div>
@@ -1974,32 +1984,15 @@ Powered by: Healthcare AI Chatbot v2.0
       {/* Input Area */}
       <div className="input-area">
         <form onSubmit={handleTextSubmit} className="input-form">
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Type your health question..."
             disabled={isLoading || isRecording}
             className="text-input"
+            rows="1"
           />
-
-          <button
-            type="button"
-            onClick={handleVoiceToggle}
-            disabled={isLoading}
-            className={`btn btn-voice ${isRecording ? 'recording' : ''}`}
-            title={voiceSupported ? 'Click to record voice' : 'Voice not supported'}
-          >
-            {isRecording ? (
-              <>
-                <FiStopCircle /> Stop Recording
-              </>
-            ) : (
-              <>
-                <FiMic /> Voice Input
-              </>
-            )}
-          </button>
 
           <button
             type="submit"

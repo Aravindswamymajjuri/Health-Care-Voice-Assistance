@@ -1120,16 +1120,16 @@ body {
 /* ===================== INPUT AREA ===================== */
 .input-area { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-top: 1px solid rgba(0,0,0,0.04); background: #ffffff; }
 
-.input-form { display: flex; gap: 10px; align-items: center; width: 100%; max-width: 1000px; margin: 0 auto; }
+.input-form { display: flex; gap: 10px; align-items: flex-end; width: 100%; margin: 0 auto; }
 
-.text-input { flex: 1; padding: 12px 16px; border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; font-size: 0.95rem; background: #ffffff; }
+.text-input { flex: 1; padding: 14px 20px; border: 1px solid rgba(0,0,0,0.08); border-radius: 999px; font-size: 1rem; background: #ffffff; min-height: 48px; max-height: 150px; resize: none; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.5; font-family: inherit; }
 .text-input:focus { outline: none; box-shadow: 0 6px 18px rgba(79,70,229,0.06); border-color: rgba(79,70,229,0.18); }
 
 .btn { height: 44px; padding: 0 14px; border-radius: 10px; background: #f4f6f7; border: 1px solid rgba(0,0,0,0.04); display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 
 .btn-reset { background: transparent; border: 1px solid rgba(0,0,0,0.04); }
 .btn-voice { background: transparent; border: 1px solid rgba(0,0,0,0.08); }
-.btn-send { background: var(--color-primary); color: white; border: none; }
+.btn-send { background: var(--color-primary); color: white; border: none; min-width: 100pxu; height: 48px; flex-shrink: 0; }
 .btn-send:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .btn-clear { margin: 0 auto; padding: 8px 12px; border-radius: 8px; background: #fff5f5; border: 1px solid #fecaca; color: #b91c1c; }
@@ -1231,7 +1231,8 @@ body {
 .input-form {
   display: flex;
   gap: var(--space-10);
-  align-items: center;
+  align-items: flex-end;
+  width: 100%;
 }
 
 .text-input {
@@ -1245,6 +1246,12 @@ body {
   outline: none;
   background: var(--color-surface);
   color: var(--color-text);
+  min-height: 48px;
+  max-height: 150px;
+  resize: none;
+  overflow-y: auto;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .text-input:focus {
@@ -1408,16 +1415,6 @@ body {
     order: 2;
     flex: 1;
   }
-
-  .btn-voice {
-    order: 3;
-    flex: 1;
-  }
-
-  .btn-reset {
-    order: 4;
-    flex: 1;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1447,8 +1444,10 @@ body {
   }
 
   .text-input {
-    padding: var(--space-10) var(--space-12);
-    font-size: var(--font-size-sm);
+    padding: 12px 16px;
+    font-size: 1rem;
+    min-height: 44px;
+    max-height: 150px;
   }
 
   .chatbot-header {

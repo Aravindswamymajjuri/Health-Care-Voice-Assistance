@@ -25,20 +25,13 @@
   transform: scale(0.95);
 }
 
-/* Override styles when in teal header */
-.home-hero .language-selector-icon-btn {
-  color: #ffffff;
-}
-
-.home-hero .language-selector-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
 .lang-icon {
   color: inherit;
   flex-shrink: 0;
   stroke-width: 2;
 }
+
+
 
 .language-dropdown {
   position: absolute;

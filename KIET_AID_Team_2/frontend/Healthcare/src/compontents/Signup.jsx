@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiLock, FiUser, FiEye, FiEyeOff, FiUserPlus } from 'react-icons/fi';
+import { FiLock, FiUser, FiEye, FiEyeOff, FiUserPlus, FiHome } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../context/LanguageContext';
@@ -168,7 +168,7 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin, onGoHome }) => {
 
   return (
     <div className={`auth-container signup ${isAnimating ? 'active' : ''}`}>
-      <button type="button" className="go-home-btn" onClick={onGoHome} aria-label="Go home">{t('home')}</button>
+      <button type="button" className="go-home-btn" onClick={onGoHome} aria-label="Go home" title="Go home"><FiHome size={20} /></button>
       <div className="auth-card">
         <div className="auth-hero">
           <div className="hero-icon">🩺</div>

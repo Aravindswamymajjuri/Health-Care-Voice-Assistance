@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FiUserPlus, FiLogIn, FiMic, FiMessageSquare, FiShield, FiBarChart2 } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
-import LanguageSelector from './LanguageSelector';
 import './Home.css';
 
 const Home = ({ onSwitchToLogin, onSwitchToSignup }) => {
@@ -74,9 +73,6 @@ const Home = ({ onSwitchToLogin, onSwitchToSignup }) => {
   return (
     <div className="home-container">
       <header className="home-hero">
-        <div className="hero-header-top">
-          <LanguageSelector />
-        </div>
         <div className="hero-inner">
           <h1 className="home-title">{t('welcomeTitle')}</h1>
           <p className="lead">{t('homeSubtitle')}</p>

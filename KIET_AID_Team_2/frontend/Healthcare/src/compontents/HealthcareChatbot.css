@@ -1218,49 +1218,69 @@ body {
   }
 }
 
-/* ===================== INPUT AREA ===================== */
+/* ===================== INPUT AREA - SEARCH BAR STYLE ===================== */
 .input-area {
-  padding: var(--space-16);
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fdf8 0%, #ffffff 100%);
+  border-top: 1px solid rgba(76, 175, 80, 0.1);
   display: flex;
   flex-direction: column;
-  gap: var(--space-10);
+  gap: 12px;
+  box-shadow: 0 -2px 12px rgba(76, 175, 80, 0.05);
 }
 
 .input-form {
   display: flex;
-  gap: var(--space-10);
-  align-items: flex-end;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
+  max-width: 100%;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: none;
+}
+
+.input-form:focus-within {
+  border-color: #4caf50;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.15);
 }
 
 .text-input {
-  flex: 1;
-  padding: var(--space-12) var(--space-16);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
+  flex: 0 1 93%;
+  padding: 16px 20px;
+  border: 2px solid rgba(76, 175, 80, 0.15);
+  border-radius: 26px;
   font-size: var(--font-size-base);
   font-family: var(--font-family-base);
   transition: all var(--duration-normal) var(--ease-standard);
   outline: none;
-  background: var(--color-surface);
+  background: white;
   color: var(--color-text);
-  min-height: 48px;
-  max-height: 150px;
+  min-height: 58px;
+  max-height: 120px;
   resize: none;
   overflow-y: auto;
   word-break: break-word;
   white-space: pre-wrap;
+  line-height: 1.5;
+  box-shadow: 0 2px 10px rgba(76, 175, 80, 0.1);
+}
+
+.text-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 15px;
 }
 
 .text-input:focus {
-  border-color: var(--color-primary);
-  box-shadow: var(--focus-ring);
+  background: transparent;
 }
 
 .text-input:disabled {
-  background: var(--color-secondary);
+  background: transparent;
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -1274,6 +1294,7 @@ body {
   font-weight: var(--font-weight-semibold);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-6);
   font-size: var(--font-size-sm);
   transition: all var(--duration-normal) var(--ease-standard);
@@ -1291,19 +1312,42 @@ body {
   outline-offset: 2px;
 }
 
+/* Send Button - Pill-Shaped with Text */
 .btn-send {
-  background: var(--color-primary);
-  color: var(--color-btn-primary-text);
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 26px;
+  min-width: 100px;
+  min-height: 44px;
+  height: 44px;
+  width: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 3px 12px rgba(76, 175, 80, 0.25);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
 }
 
 .btn-send:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  transform: scale(1.05);
-  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.35);
 }
 
 .btn-send:active:not(:disabled) {
-  background: var(--color-primary-active);
+  transform: translateY(0);
+}
+
+.btn-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-voice {
@@ -1992,12 +2036,35 @@ body {
   }
 
   .input-area {
-    padding: 12px;
+    padding: 10px 12px;
     gap: 8px;
+    background: linear-gradient(135deg, #f8fdf8 0%, #ffffff 100%);
   }
 
   .input-form {
-    gap: 0.5rem;
+    gap: 12px;
+    padding: 0;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .text-input {
+    flex: 0 1 91%;
+    padding: 14px 16px;
+    border-radius: 24px;
+    font-size: 14px;
+    min-height: 50px;
+  }
+
+  .btn-send {
+    width: auto;
+    height: 50px;
+    min-width: 90px;
+    min-height: 50px;
+    padding: 14px 20px;
+    font-size: 13px;
+    border-radius: 20px;
   }
 
   .sidebar {
@@ -2151,6 +2218,30 @@ body {
     min-height: 44px;
   }
 
+  .input-form {
+    gap: 10px;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .text-input {
+    flex: 0 1 91%;
+    padding: 14px 16px;
+    border-radius: 24px;
+    min-height: 50px;
+  }
+
+  .btn-send {
+    width: auto;
+    height: 40px;
+    min-width: 90px;
+    min-height: 40px;
+    padding: 10px 20px;
+    font-size: 13px;
+    border-radius: 20px;
+  }
+
   .sidebar {
     width: 240px;
   }
@@ -2196,6 +2287,29 @@ body {
   .btn {
     padding: 0.75rem;
     min-height: 44px;
+  }
+
+  .input-form {
+    gap: 14px;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .text-input {
+    flex: 0 1 94%;
+    padding: 16px 22px;
+    min-height: 54px;
+  }
+
+  .btn-send {
+    width: auto;
+    height: 54px;
+    min-width: 100px;
+    min-height: 54px;
+    padding: 16px 26px;
+    font-size: 15px;
+    border-radius: 24px;
   }
 
   .sidebar {
@@ -2284,6 +2398,30 @@ body {
     font-size: 16px; /* prevent iOS zoom */
   }
 
+  .input-form {
+    padding: 0;
+    gap: 12px;
+    border: none;
+    background: transparent;
+  }
+
+  .text-input {
+    flex: 0 1 92%;
+    min-height: 58px;
+    padding: 16px 20px;
+    font-size: 16px;
+  }
+
+  .btn-send {
+    width: auto;
+    height: 58px;
+    min-width: 100px;
+    min-height: 58px;
+    padding: 16px 28px;
+    font-size: 16px;
+    border-radius: 24px;
+  }
+
   .btn {
     min-height: 48px;
     padding: 0.75rem 1rem;
@@ -2311,7 +2449,26 @@ body {
 
   /* Prevent accidental touches */
   .input-form {
-    gap: 0.75rem;
+    gap: 12px;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .text-input {
+    flex: 0 1 90%;
+    min-height: 58px;
+    padding: 16px 20px;
+  }
+
+  .btn-send {
+    width: auto;
+    height: 58px;
+    min-width: 105px;
+    min-height: 58px;
+    padding: 16px 28px;
+    font-size: 16px;
+    border-radius: 24px;
   }
 
   /* Increase link tap targets */

@@ -93,7 +93,30 @@ const HealthcareChatbot = ({ currentUser, onLogout }) => {
   const [autoSendNext, setAutoSendNext] = useState(false);
   const sentEmergencyRef = useRef(false); // prevents duplicate auto-sends during the same session
 
-
+  // ========== REFRESH USER PROFILE ON MOUNT ==========
+  // This ensures emergencyEmail is always available even if the stored user object is stale
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const resp = await axios.get(`${API_BASE_URL}/api/auth/me`);
+        if (resp.data?.user) {
+          const updatedUser = { ...currentUser, ...resp.data.user };
+          // Update localStorage so it's fresh on next load
+          try {
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          } catch (e) {
+            console.warn('Could not persist refreshed user to localStorage', e);
+          }
+          // Notify App.jsx to update currentUser state
+          window.dispatchEvent(new CustomEvent('profileUpdated', { detail: updatedUser }));
+        }
+      } catch (err) {
+        console.warn('Could not refresh user profile:', err?.response?.data || err.message);
+      }
+    };
+    fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run only once on mount
 
   // 3. Health Tips Carousel
 

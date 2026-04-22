@@ -49,13 +49,14 @@ from auth import (
     OTPManager
 )
 
-# Import email utility for OTP delivery
+# Import email utility for OTP delivery (send_email) and emergency alerts
 try:
     from email_utils import send_email
     EMAIL_AVAILABLE = True
-except ImportError:
+    print("✅ Email utility (send_email) loaded successfully")
+except Exception as _email_import_err:
     EMAIL_AVAILABLE = False
-    print("⚠️ Email utility not available")
+    print(f"⚠️ Email utility not available: {_email_import_err}")
 
 # Import response validator for fallback system
 try:
@@ -1188,7 +1189,7 @@ async def get_stats():
 
 # ===================== AUTH ENDPOINTS =====================
 
-@app.post('/api/auth/signup', response_model=AuthResponse)
+@app.post('/api/auth/signup')
 async def signup(payload: SignupRequest):
     """Create a new user account"""
     try:
@@ -1208,32 +1209,54 @@ async def signup(payload: SignupRequest):
             logger.error(f"Signup returned user without 'id': {user}")
             raise HTTPException(status_code=500, detail="Internal error: created user missing id")
         token = users_manager.create_token(user['id'])
-        return AuthResponse(
-            status='success', 
-            token=token,
-            user=UserInfo(id=user['id'], username=user['username'], email=user.get('email')),
-            message='Account created successfully'
-        )
+        # Return full user profile so frontend can store emergencyEmail etc.
+        full_user = {
+            'id': user['id'],
+            'user_id': user.get('user_id', user['id']),
+            'username': user['username'],
+            'email': user.get('email'),
+            'full_name': user.get('full_name'),
+            'phone': user.get('phone'),
+            'age': user.get('age'),
+            'gender': user.get('gender'),
+            'allergies': user.get('allergies'),
+            'emergencyContact': user.get('emergencyContact'),
+            'emergencyEmail': user.get('emergencyEmail'),
+            'created_at': user.get('created_at'),
+            'updated_at': user.get('updated_at'),
+        }
+        return JSONResponse({'status': 'success', 'token': token, 'user': full_user, 'message': 'Account created successfully'})
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         logger.error(f"Signup error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post('/api/auth/login', response_model=AuthResponse)
+@app.post('/api/auth/login')
 async def login(payload: LoginRequest):
-    """Authenticate user and return token"""
+    """Authenticate user and return token with full profile"""
     try:
         user = users_manager.verify_user(payload.username, payload.password)
         if not user:
             raise HTTPException(status_code=401, detail='Invalid username or password')
         token = users_manager.create_token(user['id'])
-        return AuthResponse(
-            status='success', 
-            token=token,
-            user=UserInfo(id=user['id'], username=user['username']),
-            message='Login successful'
-        )
+        # Return full user profile so frontend can store emergencyEmail etc.
+        full_user = {
+            'id': user['id'],
+            'user_id': user.get('user_id', user['id']),
+            'username': user['username'],
+            'email': user.get('email'),
+            'full_name': user.get('full_name'),
+            'phone': user.get('phone'),
+            'age': user.get('age'),
+            'gender': user.get('gender'),
+            'allergies': user.get('allergies'),
+            'emergencyContact': user.get('emergencyContact'),
+            'emergencyEmail': user.get('emergencyEmail'),
+            'created_at': user.get('created_at'),
+            'updated_at': user.get('updated_at'),
+        }
+        return JSONResponse({'status': 'success', 'token': token, 'user': full_user, 'message': 'Login successful'})
     except HTTPException:
         raise
     except Exception as e:

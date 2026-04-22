@@ -23,7 +23,6 @@ import {
   getEncouragementMessage,
   formatTipsSection,
   enhanceResponseWithContext,
-  ProTips,
 } from './features';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -49,7 +48,6 @@ const HealthcareChatbot = ({ currentUser, onLogout }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(true);
-  const [userContext, setUserContext] = useState({}); // Track user health context for Pro Tips
 
   // ========== VOICE ASSISTANT MODE (Google Assistant-like) ==========
   const [voiceAssistantActive, setVoiceAssistantActive] = useState(false);
@@ -1008,7 +1006,6 @@ const HealthcareChatbot = ({ currentUser, onLogout }) => {
     try {
       // Build user context for personalized responses
       const context = buildUserContext(null, null, messages, []);
-      setUserContext(context); // Update state for Pro Tips and other features
       
       const systemPrompt = generateContextualSystemPrompt(context);
       const personalizedTips = getPersonalizedTips(context);
@@ -1691,8 +1688,10 @@ Powered by: Healthcare AI Chatbot v2.0
                 className="toolbar-btn"
                 onClick={() => {
                   setShowEmergencyEmailConfirm(true);
-                  setEmergencyEmailInput(currentUser?.emergencyEmail || '');
-                  setAutoSendNext(!!currentUser?.emergencyAutoSend);
+                  // Try both camelCase and snake_case property names
+                  const emergencyEmail = currentUser?.emergencyEmail || currentUser?.emergency_email || '';
+                  setEmergencyEmailInput(emergencyEmail);
+                  setAutoSendNext(!!currentUser?.emergencyAutoSend || !!currentUser?.emergency_auto_send);
                 }}
                 title="Send email to emergency contact"
               >
@@ -1714,12 +1713,24 @@ Powered by: Healthcare AI Chatbot v2.0
                   
                   <label style={{ display: 'block', marginBottom: 8, marginTop: 16 }}>
                     <strong>Emergency Contact Email:</strong>
+                    {emergencyEmailInput && (
+                      <span style={{ fontSize: '12px', color: '#10b981', marginLeft: '8px' }}>
+                        ✓ (from your profile)
+                      </span>
+                    )}
                     <input
                       type="email"
                       value={emergencyEmailInput}
                       onChange={(e) => setEmergencyEmailInput(e.target.value)}
                       placeholder="Enter contact email"
-                      style={{ width: '100%', padding: '10px', marginTop: '6px', borderRadius: '4px', border: '1px solid #ddd' }}
+                      style={{ 
+                        width: '100%', 
+                        padding: '10px', 
+                        marginTop: '6px', 
+                        borderRadius: '4px', 
+                        border: emergencyEmailInput ? '1px solid #10b981' : '1px solid #ddd',
+                        backgroundColor: emergencyEmailInput ? '#f0fdf4' : '#fff'
+                      }}
                     />
                   </label>
 
@@ -1916,20 +1927,6 @@ Powered by: Healthcare AI Chatbot v2.0
             ))}
           </div>
         </aside>
-
-        {/* Pro Tips & Precautions Section - AT THE TOP */}
-        {messages.length > 0 && (
-          <div className="pro-tips-section">
-            <ProTips 
-              messages={messages} 
-              userContext={userContext}
-              triggerRefresh={messages.length}
-              onTipsUpdate={(tipsData) => {
-                console.log('💡 Tips updated:', tipsData);
-              }}
-            />
-          </div>
-        )}
 
         {/* Messages Container */}
         <div className="messages-container" ref={messagesContainerRef}>

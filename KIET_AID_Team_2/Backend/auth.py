@@ -65,6 +65,38 @@ class AuthResponse(BaseModel):
     user: UserResponse
     message: str
 
+# ===================== PASSWORD RESET & OTP MODELS =====================
+
+class ForgotPasswordRequest(BaseModel):
+    """Forgot password request model"""
+    email: EmailStr
+
+class VerifyOTPRequest(BaseModel):
+    """OTP verification request model"""
+    email: EmailStr
+    otp: str = Field(..., min_length=6, max_length=6)
+
+class ResetPasswordRequest(BaseModel):
+    """Password reset request model"""
+    reset_token: str
+    new_password: str = Field(..., min_length=6)
+
+class ForgotPasswordResponse(BaseModel):
+    """Forgot password response model"""
+    status: str
+    message: str
+
+class VerifyOTPResponse(BaseModel):
+    """OTP verification response model"""
+    status: str
+    reset_token: str
+    message: str
+
+class ResetPasswordResponse(BaseModel):
+    """Password reset response model"""
+    status: str
+    message: str
+
 # ===================== DATABASE MANAGEMENT =====================
 
 class Database:
@@ -355,5 +387,165 @@ class AuthManager:
     def logout(token: str):
         """Logout user by removing session"""
         Database.delete_session(token)
+
+# ===================== OTP MANAGER FOR PASSWORD RESET =====================
+
+class OTPManager:
+    """Manages OTP generation, storage, and validation for password reset"""
+    
+    # OTP configuration
+    OTP_VALIDITY_MINUTES = 15  # OTP expires in 15 minutes
+    RESET_TOKEN_VALIDITY_MINUTES = 30  # Reset token expires in 30 minutes
+    OTP_LENGTH = 6  # 6-digit OTP
+    
+    @staticmethod
+    def generate_otp() -> str:
+        """Generate a random 6-digit OTP"""
+        import random
+        return ''.join([str(random.randint(0, 9)) for _ in range(OTPManager.OTP_LENGTH)])
+    
+    @staticmethod
+    def get_otp_collection():
+        """Get OTP tokens collection from MongoDB"""
+        if USE_MONGODB:
+            try:
+                from database import get_database
+                db = get_database()
+                return db['otp_tokens']
+            except Exception as e:
+                print(f"⚠️ Cannot get OTP collection from MongoDB: {e}")
+                return None
+        return None
+    
+    @staticmethod
+    def get_reset_tokens_collection():
+        """Get reset tokens collection from MongoDB"""
+        if USE_MONGODB:
+            try:
+                from database import get_database
+                db = get_database()
+                return db['reset_tokens']
+            except Exception as e:
+                print(f"⚠️ Cannot get reset tokens collection from MongoDB: {e}")
+                return None
+        return None
+    
+    @staticmethod
+    def store_otp(email: str, otp: str) -> bool:
+        """Store OTP in database with expiry timestamp"""
+        try:
+            otp_collection = OTPManager.get_otp_collection()
+            if otp_collection is not None:
+                # Delete old OTPs for this email
+                otp_collection.delete_many({"email": email, "used": False})
+                
+                # Store new OTP
+                otp_collection.insert_one({
+                    "email": email,
+                    "otp": otp,
+                    "created_at": datetime.now().isoformat(),
+                    "expires_at": (datetime.now() + timedelta(minutes=OTPManager.OTP_VALIDITY_MINUTES)).isoformat(),
+                    "used": False
+                })
+                return True
+            return False
+        except Exception as e:
+            print(f"❌ Error storing OTP: {e}")
+            return False
+    
+    @staticmethod
+    def verify_otp(email: str, otp: str) -> bool:
+        """Verify OTP and mark as used if valid"""
+        try:
+            otp_collection = OTPManager.get_otp_collection()
+            if otp_collection is not None:
+                otp_record = otp_collection.find_one({
+                    "email": email,
+                    "otp": otp,
+                    "used": False
+                })
+                
+                if not otp_record:
+                    return False
+                
+                # Check if OTP has expired
+                expires_at = datetime.fromisoformat(otp_record['expires_at'])
+                if datetime.now() > expires_at:
+                    return False
+                
+                # Mark OTP as used
+                otp_collection.update_one(
+                    {"_id": otp_record['_id']},
+                    {"$set": {"used": True}}
+                )
+                return True
+            return False
+        except Exception as e:
+            print(f"❌ Error verifying OTP: {e}")
+            return False
+    
+    @staticmethod
+    def create_reset_token(user_id: str) -> str:
+        """Create a reset token for password reset"""
+        try:
+            reset_token = secrets.token_urlsafe(32)
+            reset_tokens_collection = OTPManager.get_reset_tokens_collection()
+            
+            if reset_tokens_collection is not None:
+                reset_tokens_collection.insert_one({
+                    "user_id": user_id,
+                    "reset_token": reset_token,
+                    "created_at": datetime.now().isoformat(),
+                    "expires_at": (datetime.now() + timedelta(minutes=OTPManager.RESET_TOKEN_VALIDITY_MINUTES)).isoformat(),
+                    "used": False
+                })
+                return reset_token
+            return None
+        except Exception as e:
+            print(f"❌ Error creating reset token: {e}")
+            return None
+    
+    @staticmethod
+    def validate_reset_token(reset_token: str) -> Optional[str]:
+        """Validate reset token and return user_id if valid"""
+        try:
+            reset_tokens_collection = OTPManager.get_reset_tokens_collection()
+            
+            if reset_tokens_collection is not None:
+                token_record = reset_tokens_collection.find_one({
+                    "reset_token": reset_token,
+                    "used": False
+                })
+                
+                if not token_record:
+                    return None
+                
+                # Check if token has expired
+                expires_at = datetime.fromisoformat(token_record['expires_at'])
+                if datetime.now() > expires_at:
+                    return None
+                
+                return token_record['user_id']
+            return None
+        except Exception as e:
+            print(f"❌ Error validating reset token: {e}")
+            return None
+    
+    @staticmethod
+    def mark_reset_token_used(reset_token: str) -> bool:
+        """Mark reset token as used after password reset"""
+        try:
+            reset_tokens_collection = OTPManager.get_reset_tokens_collection()
+            
+            if reset_tokens_collection is not None:
+                reset_tokens_collection.update_one(
+                    {"reset_token": reset_token},
+                    {"$set": {"used": True}}
+                )
+                return True
+            return False
+        except Exception as e:
+            print(f"❌ Error marking reset token as used: {e}")
+            return False
 
 auth_manager = AuthManager()

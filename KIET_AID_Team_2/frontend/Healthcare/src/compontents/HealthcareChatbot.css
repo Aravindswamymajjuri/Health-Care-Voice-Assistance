@@ -1011,45 +1011,6 @@ body {
   background: rgba(0,0,0,0.12);
 }
 
-/* ===================== PRO TIPS SECTION ===================== */
-.pro-tips-section {
-  padding: var(--space-20) var(--space-16);
-  background: linear-gradient(135deg, rgba(248, 249, 250, 0.95) 0%, rgba(232, 245, 233, 0.95) 100%);
-  border-top: 1px solid rgba(76, 175, 80, 0.15);
-  max-height: 450px;
-  overflow-y: auto;
-  animation: slideUp 0.4s var(--ease-soft);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.pro-tips-section::-webkit-scrollbar {
-  width: 8px;
-}
-
-.pro-tips-section::-webkit-scrollbar-track {
-  background: rgba(76, 175, 80, 0.05);
-  border-radius: var(--radius-md);
-}
-
-.pro-tips-section::-webkit-scrollbar-thumb {
-  background: rgba(76, 175, 80, 0.3);
-  border-radius: var(--radius-md);
-}
-
-.pro-tips-section::-webkit-scrollbar-thumb:hover {
-  background: rgba(76, 175, 80, 0.5);
-}
-
 /* ===================== MESSAGES ===================== */
 .message {
   display: flex;

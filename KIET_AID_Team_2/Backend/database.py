@@ -214,6 +214,10 @@ def init_mongodb():
     return mongodb.connect()
 
 # ===================== HELPER FUNCTIONS =====================
+def get_database():
+    """Get the MongoDB database instance"""
+    return mongodb.db
+
 def get_users_collection():
     """Get users collection"""
     return mongodb.get_collection("users")
@@ -225,3 +229,11 @@ def get_sessions_collection():
 def get_chat_logs_collection():
     """Get chat logs collection"""
     return mongodb.get_collection("chat_logs")
+
+def get_otp_tokens_collection():
+    """Get OTP tokens collection"""
+    return mongodb.get_collection("otp_tokens")
+
+def get_reset_tokens_collection():
+    """Get reset tokens collection"""
+    return mongodb.get_collection("reset_tokens")

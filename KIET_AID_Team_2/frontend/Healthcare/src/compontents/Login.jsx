@@ -3,6 +3,7 @@ import { FiLock, FiUser, FiEye, FiEyeOff, FiLogIn, FiHome } from 'react-icons/fi
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../context/LanguageContext';
+import ForgotPasswordModal from './ForgotPasswordModal';
 import './Auth.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -13,6 +14,7 @@ const Login = ({ onLoginSuccess, onSwitchToSignup, onGoHome }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   useEffect(() => { setTimeout(() => setIsAnimating(true), 80); }, []);
 
@@ -23,8 +25,7 @@ const Login = ({ onLoginSuccess, onSwitchToSignup, onGoHome }) => {
 
   const handleForgot = (e) => {
     e.preventDefault();
-    // Simple placeholder - integrate with backend/reset flow later
-    alert('If this were a full app, a password reset flow would start here.');
+    setShowForgotPassword(true);
   };
 
   const handleSubmit = async (e) => {
@@ -100,6 +101,11 @@ const Login = ({ onLoginSuccess, onSwitchToSignup, onGoHome }) => {
           <p className="auth-switch-text">{t('dontHaveAccount')} <button type="button" className="auth-switch-button" onClick={onSwitchToSignup} disabled={isLoading}>{t('signupNow')}</button></p>
         </div>
       </div>
+
+      <ForgotPasswordModal 
+        isOpen={showForgotPassword} 
+        onClose={() => setShowForgotPassword(false)} 
+      />
     </div>
   );
 };

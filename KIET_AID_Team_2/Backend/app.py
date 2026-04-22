@@ -42,7 +42,20 @@ from functools import wraps
 import numpy as np
 
 # Import authentication module
-from auth import auth_manager, UserCreate, UserLogin, AuthResponse, UserResponse
+from auth import (
+    auth_manager, UserCreate, UserLogin, AuthResponse, UserResponse,
+    ForgotPasswordRequest, VerifyOTPRequest, ResetPasswordRequest,
+    ForgotPasswordResponse, VerifyOTPResponse, ResetPasswordResponse,
+    OTPManager
+)
+
+# Import email utility for OTP delivery
+try:
+    from email_utils import send_email
+    EMAIL_AVAILABLE = True
+except ImportError:
+    EMAIL_AVAILABLE = False
+    print("⚠️ Email utility not available")
 
 # Import response validator for fallback system
 try:
@@ -135,13 +148,6 @@ class ChatHistory(BaseModel):
     bot_response: str
     input_type: str
     timestamp: str
-
-
-# --------------------- Gemini tips request model ---------------------
-class GeminiTipsRequest(BaseModel):
-    """Request model for generating tips using Gemini/Generative API"""
-    user_context: Optional[dict] = None
-    messages: Optional[List[dict]] = []
 
 
 # ===================== 8. MODEL MANAGER =====================
@@ -266,125 +272,7 @@ except Exception as e:
     logger.error(f"❌ Failed to initialize model manager: {e}")
     model_manager = None
 
-# Import Gemini integration helper (optional - only used if GEMINI_API_KEY present)
-try:
-    from gemini_integration import generate_tips_via_gemini
-    logger.info("🔗 Gemini integration module loaded for AI-powered tips")
-except Exception as e:
-    generate_tips_via_gemini = None
-    logger.info("⚠️ Gemini integration module not available: "+str(e))
-
-
-# Local fallback tips generator used when external API is not configured
-def generate_local_tips(user_context: dict, messages: list) -> dict:
-    """Return a dict with keys: tips (list), raw (str), urgency (low|medium|high)"""
-    tips = []
-    mood = None
-    if isinstance(user_context.get('mood'), dict):
-        mood = user_context.get('mood', {}).get('name')
-    else:
-        mood = user_context.get('mood') or user_context.get('mood_state')
-
-    symptoms = user_context.get('symptoms') or []
-
-    if mood and symptoms:
-        for s in symptoms[:3]:
-            tips.append(f"Try basic care for {s}: rest, hydration, and monitor symptoms.")
-    if not tips and mood:
-        ml = (mood or '').lower()
-        if ml.startswith('anx'):
-            tips = ["Try 4-7-8 breathing for 5 minutes.", "Take a short walk to reduce tension."]
-        elif ml.startswith('sad'):
-            tips = ["Get morning sunlight for 10 minutes.", "Reach out to a friend for social support."]
-        elif ml.startswith('tired'):
-            tips = ["Short naps (20-30 min) can help.", "Avoid caffeine after 2 PM."]
-        else:
-            tips = ["Stay hydrated, eat balanced meals, and rest as needed."]
-    if not tips:
-        tips = ["Stay hydrated.", "Get enough sleep.", "If symptoms worsen, see a doctor."]
-
-    return {"tips": tips[:5], "raw": "", "urgency": "low"}
-
 # ===================== 9. AUDIO PROCESSOR =====================
-
-# --------------------- Gemini Tips Generation Endpoint ---------------------
-@app.post("/api/generate/tips")
-async def generate_tips_endpoint(payload: GeminiTipsRequest):
-    """Generate personalized healthcare tips using Gemini API.
-
-    Endpoint: POST /api/generate/tips
-    
-    Request body:
-    {
-        "user_context": {
-            "mood": "anxious",
-            "symptoms": ["headache"],
-            "age": 25,
-            "gender": "M",
-            "allergies": ""
-        },
-        "messages": [
-            {"type": "user", "text": "I am feeling anxious"}
-        ]
-    }
-    
-    Response:
-    {
-        "status": "success",
-        "tips": ["Tip 1", "Tip 2", ...],
-        "urgency": "low|medium|high"
-    }
-    
-    Features:
-    - Calls Gemini API if GEMINI_API_KEY is set
-    - Falls back to local tips if API fails
-    - Proper error handling and logging
-    """
-    user_context = payload.user_context or {}
-    messages = payload.messages or []
-    
-    # Log request details for debugging
-    logger.info(f"📝 Tips endpoint called")
-    logger.debug(f"   User context: {json.dumps(user_context)[:100]}...")
-    logger.debug(f"   Messages: {len(messages)} message(s)")
-
-    try:
-        if generate_tips_via_gemini is not None:
-            try:
-                logger.info(f"🚀 Attempting to generate tips via Gemini API...")
-                result = await generate_tips_via_gemini(user_context=user_context, messages=messages)
-                logger.info(f"✅ Gemini API succeeded - Generated {len(result.get('tips', []))} tips")
-                return JSONResponse({
-                    "status": "success",
-                    "tips": result.get("tips", []),
-                    "raw": result.get("raw", ""),
-                    "urgency": result.get("urgency", "low")
-                })
-            except RuntimeError as e:
-                # Gemini API error - fall back to local tips
-                logger.warning(f"⚠️ Gemini API error, falling back to local tips: {str(e)[:200]}")
-                local = generate_local_tips(user_context, messages)
-                logger.info(f"✅ Local tips fallback - Generated {len(local.get('tips', []))} tips")
-                return JSONResponse({
-                    "status": "success",
-                    "tips": local.get("tips", []),
-                    "raw": local.get("raw", ""),
-                    "urgency": local.get("urgency", "low")
-                })
-        else:
-            # Local fallback (Gemini not available)
-            logger.info(f"⚠️ Gemini API not available, using local tips")
-            local = generate_local_tips(user_context, messages)
-            return JSONResponse({
-                "status": "success",
-                "tips": local.get("tips", []),
-                "raw": local.get("raw", ""),
-                "urgency": local.get("urgency", "low")
-            })
-
-    except Exception as e:
-        logger.error(f"❌ Unexpected error generating tips: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Tips generation failed")
 
 
 
@@ -1029,6 +917,28 @@ async def notify_emergency(
 
     # Compose professional emergency email
     user_name = current_user.get('username') or current_user.get('email') or 'Unknown'
+    
+    # Fetch full user profile from database for complete details
+    user_profile = None
+    try:
+        from database import get_users_collection
+        users_collection = get_users_collection()
+        if users_collection is not None:
+            user_id = current_user.get('id') or current_user.get('user_id') or current_user.get('_id')
+            if isinstance(user_id, str):
+                from bson import ObjectId
+                try:
+                    user_id = ObjectId(user_id)
+                except:
+                    pass
+            user_profile = users_collection.find_one({"_id": user_id} if isinstance(user_id, ObjectId) else {"username": user_name})
+            if user_profile:
+                logger.info(f"✅ Fetched full user profile from database for {user_name}")
+            else:
+                logger.warning(f"⚠️ User profile not found in database for {user_name}")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to fetch full user profile: {e}")
+
     subject = f"🚨 EMERGENCY ALERT - {user_name}: {alert_message[:60]}"
 
     text_lines = []
@@ -1039,6 +949,19 @@ async def notify_emergency(
     text_lines.append(f"Alert Type: {alert_message.upper()}")
     text_lines.append(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     text_lines.append(f"Conversation ID: {payload.conversation_id or 'N/A'}")
+    
+    # Add user details if available
+    if user_profile:
+        text_lines.append("=" * 70)
+        text_lines.append("📋 PATIENT INFORMATION:")
+        text_lines.append("-" * 70)
+        text_lines.append(f"Email: {user_profile.get('email', 'N/A')}")
+        text_lines.append(f"Phone: {user_profile.get('phone', 'N/A')}")
+        text_lines.append(f"Age: {user_profile.get('age', 'N/A')}")
+        text_lines.append(f"Gender: {user_profile.get('gender', 'N/A')}")
+        text_lines.append(f"Allergies: {user_profile.get('allergies', 'None recorded')}")
+        text_lines.append(f"Emergency Contact: {user_profile.get('emergencyContact', 'N/A')}")
+    
     text_lines.append("=" * 70)
     text_lines.append("")
     
@@ -1093,6 +1016,15 @@ async def notify_emergency(
                 <p><strong>Timestamp:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p><strong>Conversation ID:</strong> {payload.conversation_id or 'N/A'}</p>
             </div>
+            
+            {"<div class='alert-info'><h3>📋 Patient Medical Information</h3>" if user_profile else ""}
+            {f"<p><strong>Email:</strong> {user_profile.get('email', 'N/A')}</p>" if user_profile else ""}
+            {f"<p><strong>Phone:</strong> {user_profile.get('phone', 'N/A')}</p>" if user_profile else ""}
+            {f"<p><strong>Age:</strong> {user_profile.get('age', 'N/A')}</p>" if user_profile else ""}
+            {f"<p><strong>Gender:</strong> {user_profile.get('gender', 'N/A')}</p>" if user_profile else ""}
+            {f"<p><strong>Allergies:</strong> {user_profile.get('allergies', 'None recorded')}</p>" if user_profile else ""}
+            {f"<p><strong>Emergency Contact:</strong> {user_profile.get('emergencyContact', 'N/A')}</p>" if user_profile else ""}
+            {"</div>" if user_profile else ""}
             
             <div class="chat-history">
                 <h2>📋 Chat History ({len(conversation_msgs)} messages)</h2>
@@ -1359,6 +1291,241 @@ async def me(current_user: dict = Depends(get_current_user)):
         "updated_at": current_user.get("updated_at")
     }
     return {"status": "success", "user": user_profile}
+
+# ===================== PASSWORD RESET & OTP ENDPOINTS =====================
+
+@app.post("/api/auth/forgot-password", response_model=ForgotPasswordResponse)
+async def forgot_password(request: ForgotPasswordRequest):
+    """Request password reset. Generates OTP and sends via email.
+    
+    Endpoint: POST /api/auth/forgot-password
+    
+    Request body:
+    {
+        "email": "user@example.com"
+    }
+    
+    Response:
+    {
+        "status": "success",
+        "message": "OTP has been sent to your email"
+    }
+    """
+    try:
+        # Check if user exists
+        users = {}
+        try:
+            from auth import Database
+            users = Database.load_users()
+        except Exception as e:
+            logger.warning(f"Could not load users: {e}")
+            raise HTTPException(status_code=500, detail="Database error")
+        
+        # Find user by email
+        user_found = None
+        for user_id, user_data in users.items():
+            if user_data.get('email', '').lower() == request.email.lower():
+                user_found = user_data
+                break
+        
+        if not user_found:
+            # Security: Don't reveal if email exists
+            logger.info(f"Forgot password requested for non-existent email: {request.email}")
+            return ForgotPasswordResponse(
+                status="success",
+                message="If this email exists, you will receive an OTP shortly"
+            )
+        
+        # Generate OTP
+        otp = OTPManager.generate_otp()
+        logger.info(f"🔐 Generated OTP for {request.email}: {otp}")
+        
+        # Store OTP in database
+        if not OTPManager.store_otp(request.email, otp):
+            logger.error(f"Failed to store OTP for {request.email}")
+            raise HTTPException(status_code=500, detail="Failed to process request")
+        
+        # Send OTP via email
+        if EMAIL_AVAILABLE:
+            try:
+                subject = "Healthcare Chatbot - Password Reset OTP"
+                body = f"""
+                <h2>Password Reset Request</h2>
+                <p>You requested to reset your password. Please use the following OTP to proceed:</p>
+                <h1 style="color: #007bff; font-size: 32px; letter-spacing: 5px;">{otp}</h1>
+                <p>This OTP will expire in 15 minutes.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+                <p>Best regards,<br>Healthcare Chatbot Team</p>
+                """
+                
+                success = await send_email(
+                    email=request.email,
+                    subject=subject,
+                    body=body
+                )
+                
+                if success:
+                    logger.info(f"✅ OTP email sent to {request.email}")
+                else:
+                    logger.warning(f"⚠️ Failed to send OTP email to {request.email}, but OTP was stored")
+            except Exception as e:
+                logger.error(f"❌ Error sending OTP email: {e}")
+        else:
+            logger.warning(f"⚠️ Email service not available, OTP stored but not sent to {request.email}")
+        
+        return ForgotPasswordResponse(
+            status="success",
+            message="If this email exists, you will receive an OTP shortly"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Forgot password error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.post("/api/auth/verify-otp", response_model=VerifyOTPResponse)
+async def verify_otp(request: VerifyOTPRequest):
+    """Verify OTP and generate reset token.
+    
+    Endpoint: POST /api/auth/verify-otp
+    
+    Request body:
+    {
+        "email": "user@example.com",
+        "otp": "123456"
+    }
+    
+    Response:
+    {
+        "status": "success",
+        "reset_token": "token_string",
+        "message": "OTP verified successfully"
+    }
+    """
+    try:
+        # Verify OTP
+        if not OTPManager.verify_otp(request.email, request.otp):
+            logger.warning(f"Invalid or expired OTP for {request.email}")
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or expired OTP"
+            )
+        
+        # Get user by email
+        users = {}
+        try:
+            from auth import Database
+            users = Database.load_users()
+        except Exception as e:
+            logger.error(f"Could not load users: {e}")
+            raise HTTPException(status_code=500, detail="Database error")
+        
+        # Find user by email
+        user_found = None
+        for user_id, user_data in users.items():
+            if user_data.get('email', '').lower() == request.email.lower():
+                user_found = user_data
+                break
+        
+        if not user_found:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Create reset token
+        reset_token = OTPManager.create_reset_token(user_found['user_id'])
+        if not reset_token:
+            logger.error(f"Failed to create reset token for {request.email}")
+            raise HTTPException(status_code=500, detail="Failed to create reset token")
+        
+        logger.info(f"✅ Reset token created for {request.email}")
+        
+        return VerifyOTPResponse(
+            status="success",
+            reset_token=reset_token,
+            message="OTP verified successfully"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ OTP verification error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.post("/api/auth/reset-password", response_model=ResetPasswordResponse)
+async def reset_password(request: ResetPasswordRequest):
+    """Reset user password using reset token.
+    
+    Endpoint: POST /api/auth/reset-password
+    
+    Request body:
+    {
+        "reset_token": "token_string",
+        "new_password": "NewPassword123"
+    }
+    
+    Response:
+    {
+        "status": "success",
+        "message": "Password reset successfully"
+    }
+    """
+    try:
+        # Validate reset token
+        user_id = OTPManager.validate_reset_token(request.reset_token)
+        if not user_id:
+            logger.warning(f"Invalid or expired reset token")
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or expired reset token"
+            )
+        
+        # Load users
+        users = {}
+        try:
+            from auth import Database
+            users = Database.load_users()
+        except Exception as e:
+            logger.error(f"Could not load users: {e}")
+            raise HTTPException(status_code=500, detail="Database error")
+        
+        # Find user by ID
+        if user_id not in users:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user = users[user_id]
+        
+        # Hash new password
+        password_hash = hashlib.sha256(request.new_password.encode()).hexdigest()
+        
+        # Update password
+        user['password_hash'] = password_hash
+        user['updated_at'] = datetime.now().isoformat()
+        
+        # Save users
+        try:
+            Database.save_users(users)
+        except Exception as e:
+            logger.error(f"Could not save users: {e}")
+            raise HTTPException(status_code=500, detail="Failed to update password")
+        
+        # Mark reset token as used
+        OTPManager.mark_reset_token_used(request.reset_token)
+        
+        logger.info(f"✅ Password reset successfully for user {user_id}")
+        
+        return ResetPasswordResponse(
+            status="success",
+            message="Password reset successfully. Please login with your new password."
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Password reset error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @app.post("/api/chat/text", response_model=VoiceResponse)
 async def text_chat(request: TextInput, background_tasks: BackgroundTasks, current_user: Optional[dict] = Depends(get_current_user)):
     """

@@ -992,3 +992,345 @@
    padding: 0 1px;
   }
 }
+
+/* ===================== FORGOT PASSWORD MODAL ===================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(20, 184, 166, 0.1);
+  padding: 0;
+  max-width: 440px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid rgba(20, 184, 166, 0.1);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.modal-close-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.modal-close-btn:active {
+  transform: scale(0.95);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%);
+  padding: 32px 24px 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(20, 184, 166, 0.1);
+}
+
+.modal-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: inline-block;
+  background: rgba(20, 184, 166, 0.1);
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.08);
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.modal-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.modal-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.modal-form .form-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-form .form-input {
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: #111827;
+}
+
+.modal-form .form-input::placeholder {
+  color: #9ca3af;
+}
+
+.modal-form .form-input:focus {
+  outline: none;
+  border-color: #14b8a6;
+  background: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.otp-input {
+  letter-spacing: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  padding: 12px !important;
+}
+
+.otp-timer {
+  font-size: 0.8rem;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 6px;
+  text-align: center;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.modal-button {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
+  width: 100%;
+}
+
+.modal-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(20, 184, 166, 0.3);
+  background: linear-gradient(135deg, #0d9488 0%, #0a7e71 100%);
+}
+
+.modal-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.modal-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modal-button-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.modal-button-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.modal-button-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.modal-button-group .modal-button {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-button-group .modal-button-secondary {
+  flex: 0.8;
+}
+
+/* Scrollbar styling for modal */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(20, 184, 166, 0.2);
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 184, 166, 0.4);
+}
+
+/* Modal responsive design */
+@media (max-width: 640px) {
+  .modal-content {
+    width: 95%;
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 24px 16px 16px;
+  }
+
+  .modal-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 32px;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .modal-form {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .modal-button {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .otp-input {
+    letter-spacing: 6px;
+    font-size: 1rem;
+    padding: 10px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .modal-content {
+    width: 98%;
+  }
+
+  .modal-header {
+    padding: 20px 12px 12px;
+  }
+
+  .modal-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+  }
+
+  .modal-title {
+    font-size: 1.1rem;
+  }
+
+  .modal-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .modal-form {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .modal-form .form-label {
+    font-size: 0.7rem;
+  }
+
+  .modal-button {
+    padding: 9px 10px;
+    font-size: 0.85rem;
+  }
+
+  .otp-input {
+    letter-spacing: 4px;
+    font-size: 0.95rem;
+    padding: 8px !important;
+  }
+}

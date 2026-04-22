@@ -7,7 +7,6 @@ export { default as HealthTips } from './HealthTips';
 export { default as HealthDashboard } from './HealthDashboard';
 export { default as ChatExport } from './ChatExport';
 export { default as PersonalizedInsights } from './PersonalizedInsights';
-export { default as ProTips } from './ProTips';
 export { default as TipsAndPrecautionsContainer } from './TipsAndPrecautionsContainer';
 export { default as ProTipsCarousel } from './ProTipsCarousel';
 export { default as HealthcareAppShowcase } from './HealthcareAppShowcase';
